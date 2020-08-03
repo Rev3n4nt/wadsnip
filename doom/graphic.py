@@ -5,11 +5,11 @@ import sys
 from doom.util import cache_data, save_data, load_data
 from PIL import Image, ImageOps
 
-@cache_data
+# @cache_data
 def lump_to_png(lump_data, palette):
 	return ZImage(lump_data, palette).to_png()
 
-@cache_data
+# @cache_data
 def texture_to_png(textureinfo, palette):
 	# TODO: Render all the crazy options correctly instead of simply ignoring them
 	img = Image.new('RGBA', (textureinfo['width'], textureinfo['height']), (0, 0, 0, 0))
@@ -64,7 +64,7 @@ def superscale(texture):
 		texture['data'] = png_data
 		return texture
 
-@cache_data
+# @cache_data
 def waifu_scale(png_data, scale, waifu_thresh, method):
 	from math import log
 	doubles = log(scale, 2)
@@ -81,7 +81,7 @@ def waifu_scale(png_data, scale, waifu_thresh, method):
 
 	return png_data	
 
-@cache_data
+# @cache_data
 def xbrz_scale(xbrz_data, scale, xbrz_thresh):
 	# xbrz only allows scaling 2x-6x
 	xbrz_scales = {
@@ -98,6 +98,7 @@ def xbrz_scale(xbrz_data, scale, xbrz_thresh):
 
 	# Make the canvas a little bigger before passing to xbrz, better results for sprites that hug the edges of the image.
 	xbrz_img = data_to_image(xbrz_data)
+
 	width, height = xbrz_img.size
 	border = int(((width + height) / 2) / 10) # Approx. ten percent border
 	xbrz_img = ImageOps.expand(xbrz_img, border=border, fill=(0,0,0,0))
@@ -126,13 +127,11 @@ class HiddenPrints:
         sys.stdout.close()
         sys.stdout = self._original_stdout
 
-@cache_data
+# @cache_data
 def png_to_waifu2x(data, method, arch, color):
 	import sys
 	import os
 	import types
-	if 'waifu2x_chainer' not in sys.path:
-		sys.path.append('waifu2x_chainer')
 	import waifu2x
 	
 	if not hasattr(png_to_waifu2x, 'gpu'):
@@ -164,19 +163,27 @@ def png_to_waifu2x(data, method, arch, color):
 
 	return image_to_data(dst)
 
-@cache_data
+# @cache_data
 def xbrz(src_data, scale):
 	from subprocess import call
 	from os.path import join
 	from os import remove, close
 	from tempfile import mkstemp
-	
+
 	fh, tmpfile = mkstemp()
 	close(fh)
+	fh, tmpfile2 = mkstemp()
+	close(fh)
+
 	save_data(src_data, tmpfile)
-	call([join('xbrzscale', 'xbrzscale'), str(scale), tmpfile, tmpfile])
-	data = load_data(tmpfile)
-	remove(tmpfile)
+	# if windows
+	binary = 'ScalerTest_Windows.exe'
+	# elsif linux
+	# binary = 'ScalerTest_Linux'
+	call([binary, f'-{str(scale)}xBRZ', tmpfile, tmpfile2])
+	data = load_data(tmpfile2)
+	# remove(tmpfile)
+	# remove(tmpfile2)
 	return data
 
 # One of two experimental methods attempting to determine a decent alpha layer for the image coming from waifu2x-chainer
@@ -310,7 +317,7 @@ class Picture():
 			posts = []
 			while True:
 				topdelta, = struct.unpack('B', data_file.read(1))
-				if topdelta is 255:
+				if topdelta == 255:
 					break
 				# Detect tall patch
 				if len(posts) > 0 and topdelta <= current_top:
