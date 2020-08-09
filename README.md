@@ -26,9 +26,9 @@ pip3 install chainer
 pip3 install cupy101
 pip3 install pyinstaller
 ```
-cupy101 - optional
-pyinstaller - for executable from python
 * for running image conversion - xbrzscale executable need to be downloaded & placed in same folder with standalone script or executable (which one you running).
+* cupy101 - optional
+* pyinstaller - for executable from python
 
 ## For Windows:
 compiling into executable file by following command:
