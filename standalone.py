@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
 from PIL import Image
-from doom.graphic import data_to_image, xbrz_scale, waifu_scale
 import glob
 import os
 import sys
+
+sys.path.append('waifu2x_chainer')
+from doom.graphic import data_to_image, xbrz_scale, waifu_scale
 
 def mock_superscale(filename, scale):
     return Image.open(filename)

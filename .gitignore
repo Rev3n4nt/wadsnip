@@ -2,10 +2,13 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.exe
 
 out/
 iwads/
 pwads/
+dist/
+
 _cache/
 build/
 *.spec
